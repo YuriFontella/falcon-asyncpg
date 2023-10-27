@@ -9,7 +9,7 @@ from asyncpg import Pool
 class User:
     async def on_get(self, req, resp):
         try:
-            pool: Pool = req.scope['state']['pool']
+            pool: Pool = req.context.pool
 
             async with pool.acquire() as conn:
                 records = await conn.fetchrow("select name from users limit 1")
@@ -24,7 +24,7 @@ class User:
     async def on_post(self, req, resp):
         pass
         try:
-            pool: Pool = req.scope['state']['pool']
+            pool: Pool = req.context.pool
 
             data = await req.media
             query = """

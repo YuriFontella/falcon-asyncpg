@@ -8,14 +8,18 @@ if env:
     config.read('config.ini')
 
 class Pool:
+    def __init__(self):
+        self.pool = None
+
     async def process_startup(self, scope, event):
         try:
-            pool = await asyncpg.create_pool(dsn=config.get(env, 'DSN'), min_size=2, max_size=10)
-            scope['state']['pool'] = pool
+            self.pool = await asyncpg.create_pool(dsn=config.get(env, 'DSN'), min_size=2, max_size=4)
         except Exception as e:
             raise RuntimeError(f"Failed to create a database connection pool: {e}")
 
     async def process_shutdown(self, scope, event):
-        pool = scope['state']['pool']
-        if pool:
-            await pool.close()
+        if self.pool:
+            await self.pool.close()
+
+    async def process_request(self, req, resp):
+        req.context.pool = self.pool
