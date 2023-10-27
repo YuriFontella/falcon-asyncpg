@@ -42,11 +42,9 @@ class User:
                 group_id = int(data['group_id'])
 
                 record = await conn.fetchrow(query, name, group_id)
-                print(record['id'])
 
         except Exception as e:
-            print(e)
-            raise falcon.HTTPBadRequest()
+            raise falcon.HTTPBadRequest(description=str(e))
 
         else:
-            resp.media = True
+            resp.media = record['id']
