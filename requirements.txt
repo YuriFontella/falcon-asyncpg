@@ -1,0 +1,5 @@
+falcon
+falcon-limiter
+orjson
+uvicorn
+asyncpg
