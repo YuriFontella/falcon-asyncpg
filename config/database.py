@@ -3,9 +3,9 @@ import os
 import asyncpg
 
 config = configparser.ConfigParser()
+config.read('config.ini')
+
 env = os.environ.get('ENV', 'development')
-if env:
-    config.read('config.ini')
 
 class Pool:
     def __init__(self):
@@ -22,4 +22,8 @@ class Pool:
             await self.pool.close()
 
     async def process_request(self, req, resp):
-        req.context.pool = self.pool
+        req.context.pool = await self.pool.acquire()
+
+    async def process_response(self, req, resp, resource, success):
+        if 'pool' in req.context:
+            await self.pool.release(req.context.pool)

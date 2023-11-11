@@ -10,10 +10,8 @@ class User:
     async def on_get(self, req, resp):
         try:
             pool: Pool = req.context.pool
+            records = await pool.fetchrow("select name from users limit 1")
 
-            async with pool.acquire() as conn:
-                records = await conn.fetchrow("select name from users limit 1")
-            
         except Exception as e:
             raise falcon.HTTPBadRequest(description=str(e))
 
@@ -37,11 +35,10 @@ class User:
               returning id
             """
 
-            async with pool.acquire() as conn:
-                name = data['name']
-                group_id = int(data['group_id'])
+            name = data['name']
+            group_id = int(data['group_id'])
 
-                record = await conn.fetchrow(query, name, group_id)
+            record = await pool.fetchrow(query, name, group_id)
 
         except Exception as e:
             raise falcon.HTTPBadRequest(description=str(e))
